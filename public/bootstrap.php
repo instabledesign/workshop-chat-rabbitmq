@@ -22,4 +22,10 @@ $channel = new \AMQPChannel($connection);
 /**
  * Init exchange chat HERE
  */
-$exchange;//???
+$exchange = new \AMQPExchange($channel);
+$exchange->setName('chat');
+
+// following lines are for create exchange if not exist
+$exchange->setType(AMQP_EX_TYPE_FANOUT);
+$exchange->setFlags(AMQP_DURABLE);
+$exchange->declareExchange();
