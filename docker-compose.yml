@@ -1,0 +1,25 @@
+version: '3'
+services:
+    amqp:
+        container_name: slack_amqp
+        image: rabbitmq:3.7-rc-management-alpine
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+    php72:
+        container_name: slack_php72
+        build:
+            context: 'docker'
+            dockerfile: 'php72/Dockerfile'
+        volumes:
+            - './public/:/var/www/html'
+    nginx:
+        container_name: slack_nginx
+        build:
+            context: 'docker'
+            dockerfile: 'nginx/Dockerfile'
+        ports:
+            - '80:80'
+        volumes:
+            - './public/:/var/www/html'
+
