@@ -38,6 +38,13 @@
 <!--CHAT INPUT-->
 <div class="container is-fluid">
     <div class="field has-addons">
+        <p class="control">
+            <span class="select">
+                <select id="channel">
+                    <option>all</option>
+                </select>
+            </span>
+        </p>
         <p class="control is-expanded">
             <input class="input" type="text" placeholder="Send message or /command" id="message">
         </p>
@@ -63,23 +70,51 @@
                 if (payload.action) {
                     $chat.append('<div><i>' + payload.action + '</i></div>');
                 } else if (payload.message) {
-                    $chat.append('<div><strong>[' + payload.from + ']</strong> : ' + payload.message + '</div>');
+                    $chat.append('<div><strong>[' + payload.to + '][' + payload.from + ']</strong> : ' + payload.message + '</div>');
                 }
             };
             var $message = $('#message');
             $message.keyup(function (e) {
                 if (e.keyCode == 13) {
                     sendMessage($message.val());
-                    $message.val('');
                 }
             });
-            $('#send').click(function (e) {
+            $('#send').click(function () {
                 sendMessage($message.val());
-                $message.val('');
             });
 
+            var channel = 'all';
+            var $channel = $('#channel');
+
             function sendMessage(message) {
-                $.ajax('publisher.php?text=' + encodeURI(message) + '&from=' + username);
+                if (message.match(/^\//)) {
+                    var matches = message.match(/\/([a-z]+)(?: (\S+))?(?: (.+))?/);
+                    if (matches[1] == 'join') {
+                        channel = matches[2];
+                        var $option = $channel.find('option:contains(' + channel + ')');
+                        if ($option.length === 0) {
+                            $option = $('<option>', {text: channel});
+                            $channel.append($option);
+                            $.ajax('channels.php?from=' + username + '&join=' + channel);
+                        }
+                        $option.attr('selected', 'selected');
+                    }
+                    if (matches[1] == 'leave') {
+                        channel = matches[2];
+                        var $option = $channel.find('option:contains(' + channel + ')');
+                        if ($option.length !== 0) {
+                            $option.remove();
+                            $.ajax('channels.php?from=' + username + '&leave=' + channel);
+                            $option.find('option:contains(all)').attr('selected', 'selected');
+                        }
+                    }
+
+                    $message.val('');
+                    return;
+                }
+
+                $.ajax('publisher.php?text=' + encodeURI($message.val()) + '&from=' + username + '&to=' + $channel.val());
+                $message.val('');
             }
         });
     });

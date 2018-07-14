@@ -15,7 +15,7 @@ $user = $_GET['username'];
 $queue;//???
 
 // send join message
-$exchange->publish(json_encode(['action' => sprintf('%s join.', $user)]));
+$exchange->publish(json_encode(['action' => sprintf('%s join.', $user)]), 'all');
 
 // Return strictly false if you want to stop consumer
 $consumer = function ($envelope) use ($queue) {
