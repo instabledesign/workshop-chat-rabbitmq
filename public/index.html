@@ -108,6 +108,18 @@
                             $option.find('option:contains(all)').attr('selected', 'selected');
                         }
                     }
+                    if (matches[1] == 'w') {
+                        channel = matches[2];
+                        var $option = $channel.find('option:contains(' + channel + ')');
+                        if ($option.length === 0) {
+                            $option = $('<option>', {text: channel});
+                            $channel.append($option);
+                        }
+                        $option.attr('selected', 'selected');
+                        if (matches[2]) {
+                            $.ajax('publisher.php?text=' + encodeURI(matches[3]) + '&from=' + username + '&to=' + $channel.val());
+                        }
+                    }
 
                     $message.val('');
                     return;
