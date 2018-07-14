@@ -14,6 +14,17 @@ $user = $_GET['username'];
  */
 $queue;//???
 
+$exchange->publish(
+    json_encode(['action' => sprintf('%s join.', $user)]),
+    null,
+    AMQP_NOPARAM,
+    [
+        'headers' => [
+            'to' => 'all'
+        ]
+    ]
+);
+
 // send join message
 $exchange->publish(json_encode(['action' => sprintf('%s join.', $user)]), 'all');
 
