@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Workshop chat server with RabbitMQ</title>
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="css/bulma.css">
+    <link rel="stylesheet" href="css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="css/fa-regular.min.css">
+</head>
+<body>
+<!--LOGIN SPLASH-->
+<div class="modal is-active">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+        <header class="modal-card-head">
+            <p class="modal-card-title">Pick a name</p>
+        </header>
+        <section class="modal-card-body">
+            <div class="field">
+                <div class="control has-icons-left">
+                    <input class="input is-info is-large" type="text" placeholder="Username" id="username">
+                    <span class="icon is-large is-left">
+                        <i class="fas fa-user-circle"></i>
+                    </span>
+                </div>
+            </div>
+        </section>
+        <footer class="modal-card-foot">
+            <button class="button is-success" id="connect">Connect</button>
+        </footer>
+    </div>
+</div>
+<!--CHAT FRAME-->
+<div class="container is-fluid is-fullheight">
+    <div class="notification" id="chat"></div>
+</div>
+<!--CHAT INPUT-->
+<div class="container is-fluid">
+    <div class="field has-addons">
+        <p class="control is-expanded">
+            <input class="input" type="text" placeholder="Send message or /command" id="message">
+        </p>
+        <p class="control">
+            <a class="button is-info" id="send">Send</a>
+        </p>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#connect').on('click', function () {
+            var username = $('#username').val();
+            if (username.length === 0) {
+                return;
+            }
+            $('.modal').removeClass('is-active');
+
+            var evtSource = new EventSource("consumer.php?username=" + username);
+            var $chat = $('#chat');
+
+            evtSource.onmessage = function (e) {
+                var payload = JSON.parse(e.data);
+                if (payload.action) {
+                    $chat.append('<div><i>' + payload.action + '</i></div>');
+                } else if (payload.message) {
+                    $chat.append('<div><strong>[' + payload.from + ']</strong> : ' + payload.message + '</div>');
+                }
+            };
+            var $message = $('#message');
+            $message.keyup(function (e) {
+                if (e.keyCode == 13) {
+                    sendMessage($message.val());
+                    $message.val('');
+                }
+            });
+            $('#send').click(function (e) {
+                sendMessage($message.val());
+                $message.val('');
+            });
+
+            function sendMessage(message) {
+                $.ajax('publisher.php?text=' + encodeURI(message) + '&from=' + username);
+            }
+        });
+    });
+</script>
+</body>
+</html>
