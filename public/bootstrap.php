@@ -22,4 +22,8 @@ $channel = new \AMQPChannel($connection);
 /**
  * Init exchange chat HERE
  */
-$exchange;//???
+$exchange = new \AMQPExchange($channel);
+$exchange->setName('chat');
+$exchange->setType(AMQP_EX_TYPE_DIRECT);
+$exchange->setFlags(AMQP_DURABLE);
+$exchange->declareExchange();

@@ -12,7 +12,12 @@ $user = $_GET['username'];
 /**
  * Init the user queue HERE
  */
-$queue;//???
+$queue = new \AMQPQueue($channel);
+$queue->setName($user);
+$queue->setFlags(AMQP_AUTODELETE);
+$queue->setArgument('x-expires', 1000);
+$queue->declareQueue();
+$queue->bind('chat', 'all');
 
 // send join message
 $exchange->publish(json_encode(['action' => sprintf('%s join.', $user)]), 'all');
