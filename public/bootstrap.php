@@ -27,3 +27,17 @@ $exchange->setName('chat');
 $exchange->setType(AMQP_EX_TYPE_HEADERS);
 $exchange->setFlags(AMQP_DURABLE);
 $exchange->declareExchange();
+
+//retry exchange
+//$exchange = new \AMQPExchange($channel);
+//$exchange->setName('internal_waiting_2');
+//$exchange->setType(AMQP_EX_TYPE_FANOUT);
+//$exchange->setFlags(AMQP_DURABLE + AMQP_INTERNAL);
+//$exchange->declareExchange();
+//$queue2 = new \AMQPQueue($channel);
+//$queue2->setName('internal_waiting_2');
+//$queue2->setFlags(AMQP_INTERNAL);
+//$queue2->setArgument('x-dead-letter-exchange', '');
+//$queue2->setArgument('x-message-ttl', 2000);
+//$queue2->bind('internal_waiting_2');
+//$queue2->declareQueue();

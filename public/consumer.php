@@ -17,6 +17,8 @@ $queue->setName($user);
 $queue->setFlags(AMQP_AUTODELETE);
 $queue->setArgument('x-expires', 1000);
 // add retry config HERE
+$queue->setArgument('x-dead-letter-exchange', 'internal_waiting_2');
+$queue->setArgument('x-dead-letter-routing-key', $user);
 $queue->declareQueue();
 $queue->bind('chat', null, ['to' => 'all']);
 $queue->bind('chat', null, ['to' => $user]);
