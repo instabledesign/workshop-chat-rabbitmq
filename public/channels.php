@@ -4,14 +4,14 @@ require_once 'bootstrap.php';
 
 $from = $_GET['from'];
 
-$queue = new \AMQPQueue(new \AMQPChannel($connection));
+$queue = new \AMQPQueue($channel);
 $queue->setName($from);
 $queue->setFlags(AMQP_AUTODELETE);
 $queue->setArgument('x-expires', 1000);
 $queue->declareQueue();
 if (isset($_GET['join'])) {
     $join = $_GET['join'];
-    $queue->bind('chat', $join);
+    $queue->bind($exchange->getName(), $join);
 
     $exchange->publish(
         json_encode(['action' => sprintf('%s join channel %s.', $from, $join)]),
@@ -26,7 +26,7 @@ if (isset($_GET['leave'])) {
         $leave
     );
 
-    $queue->unbind('chat', $leave);
+    $queue->unbind($exchange->getName(), $leave);
 }
 
 $connection->disconnect();
